@@ -1,0 +1,21 @@
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Credentials and local config
+.env
+config/*.env
+!config/secrets.example.env
+gcp-key.json
+*-key.json
+*service-account*.json
+
+# dbt
+dbt_transforms/target/
+dbt_transforms/dbt_packages/
+dbt_transforms/logs/
+
+# Logs
+logs/
