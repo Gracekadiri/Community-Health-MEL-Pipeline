@@ -1,0 +1,13 @@
+threshold_name,value,unit,description
+penta3_coverage_target_pct,90,pct,Penta 3 coverage target; green band floor
+mcv1_coverage_target_pct,90,pct,Measles 1 coverage target
+coverage_amber_floor_pct,70,pct,"Below this, coverage is in the deepest shortfall band"
+dropout_max_pct,10,pct,Penta 1 to Penta 3 or Measles 1 to Measles 2 dropout above this is a problem (WHO)
+over_reporting_pct,110,pct,Coverage above this share of the catchment estimate is flagged
+chw_inactive_days,7,days,CHW with no submissions for this long is flagged
+low_stock_days,14,days,Vaccine stock under this many days of average use is flagged
+wastage_max_pct,20,pct,Vaccine wastage above this share of doses used is flagged (multi-dose vials waste some by design)
+callback_sample_pct,5,pct,Share of recorded doses selected each week for a caregiver phone check
+callback_mismatch_max_pct,10,pct,Reported vs verified gap above this flags the LGA or CHW
+gps_max_km_from_facility,15,km,Visit further than this from the CHW's facility is flagged
+dup_dob_window_days,30,days,Children with the same hashed caregiver phone and dates of birth this close are possible duplicates

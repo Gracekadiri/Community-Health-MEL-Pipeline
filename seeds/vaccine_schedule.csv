@@ -1,0 +1,5 @@
+milestone,label,sort_order,due_age_days,min_age_days,overdue_after_days,defaulter_after_days,previous_milestone,min_days_after_previous,max_age_days
+penta1,Penta 1,1,42,42,28,56,,0,365
+penta3,Penta 3,2,98,98,28,56,penta1,56,730
+mcv1,Measles 1,3,274,274,28,56,,0,730
+mcv2,Measles 2,4,456,456,28,56,mcv1,28,730

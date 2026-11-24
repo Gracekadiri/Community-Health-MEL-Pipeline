@@ -1,0 +1,33 @@
+{
+  "name": "Immunisation Monitoring",
+  "dataColors": [
+    "#2a78d6",
+    "#9aa1aa",
+    "#1f5fa8",
+    "#7fb0e8",
+    "#e08a00",
+    "#c4452b",
+    "#a8c8ef",
+    "#5b636d"
+  ],
+  "background": "#ffffff",
+  "foreground": "#101418",
+  "tableAccent": "#2a78d6",
+  "good": "#2a78d6",
+  "neutral": "#f0efec",
+  "bad": "#c4452b",
+  "maximum": "#2a78d6",
+  "center": "#f0efec",
+  "minimum": "#c4452b",
+  "null": "#e9ecef",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "color": "#101418"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "color": "#5b636d"
+    }
+  }
+}

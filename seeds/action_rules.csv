@@ -1,0 +1,19 @@
+rule_id,issue,category,condition,recommended_action,owner_role
+R01,child_overdue,gap,A due milestone is past its overdue window,Home visit by the CHW this week; book the next session,chw_supervisor
+R02,child_defaulter,gap,A due milestone is past its defaulter window,Defaulter tracing visit; escalate to the supervisor if not found in two attempts,chw_supervisor
+R03,zero_dose_unvaccinated,gap,Zero-dose child registered more than 4 weeks ago still has no Penta 1,Priority visit and escort to the next session,chw_supervisor
+R04,chw_inactive,risk,No submissions from a CHW within the inactivity window,"Call the CHW; check phone, airtime and network",chw_supervisor
+R05,low_stock,risk,Vaccine stock under the low-stock days threshold,Request resupply from the LGA cold store,logistics_officer
+R06,stockout,risk,Facility reports days out of stock,Emergency resupply; reschedule affected sessions,logistics_officer
+R07,fridge_failure,risk,Fridge not working or temperature alarms reported,Move vaccines to the nearest working fridge; request repair,logistics_officer
+R08,high_wastage,risk,Wastage above the maximum,Review session sizes and open-vial practice,logistics_officer
+R09,high_dropout,gap,Dropout above the maximum for an LGA or facility,Review missed-dose reasons; plan reminder visits,program_manager
+R10,reasons_vaccine_unavailable,gap,Many missed doses with reason 'vaccine not available' where stock records show stock,Reconcile stock records with the facility; check session scheduling,me_lead
+R11,possible_duplicate_child,risk,"Two child records match on caregiver phone, date of birth and name",Confirm with the CHW and merge the records,me_lead
+R12,impossible_dose,risk,"Dose before minimum age, Penta 3 before Penta 1, or doses too close together",Check the card with the CHW and correct the record,me_lead
+R13,unknown_child_id,risk,Visit uses a child ID not found in the register,Match by name and caregiver with the CHW; correct the ID,me_lead
+R14,gps_out_of_range,risk,Visit GPS further than allowed from the CHW's facility,Confirm where the visit took place,me_lead
+R15,callback_mismatch,risk,Caregiver phone check does not confirm a recorded dose,Review the CHW's records for the period; refresher supervision,me_lead
+R16,over_reporting,risk,Coverage above the over-reporting threshold,Check the catchment population and look for duplicate children,me_lead
+R17,unassigned_children,risk,Children still linked to a CHW whose status is 'left',Reassign the children to an active CHW at the same facility,partner_focal_person
+R18,high_performer,opportunity,CHW or facility above target with low dropout for three months,Use as a peer mentor for low-performing CHWs nearby,program_manager
