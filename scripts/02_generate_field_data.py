@@ -22,6 +22,7 @@ import argparse
 import json
 import os
 import random
+import time
 import uuid
 import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta, timezone
@@ -452,14 +453,25 @@ def write_history(records, cutoff):
 
 
 def kobo_deployment(asset_uid):
+    """Return the submission addresses to try, the form's id_string and its deployed version."""
     server, token = os.getenv("KOBO_SERVER").rstrip("/"), os.getenv("KOBO_TOKEN")
     response = requests.get(f"{server}/api/v2/assets/{asset_uid}/", params={"format": "json"},
                             headers={"Authorization": f"Token {token}"}, timeout=60)
     response.raise_for_status()
     asset = response.json()
-    identifier = asset["deployment__identifier"]
-    parsed = urlparse(identifier)
-    return f"{parsed.scheme}://{parsed.netloc}", identifier.rstrip("/").split("/")[-1], asset.get("deployed_version_id")
+    version = asset.get("deployed_version_id") or asset.get("version_id")
+    identifier = asset.get("deployment__identifier")
+    candidates = []
+    if identifier:
+        parsed = urlparse(identifier)
+        candidates.append(f"{parsed.scheme}://{parsed.netloc}/submission")
+    # Kobo's form server (OpenRosa) lives on the kc- subdomain, e.g. kc-eu.kobotoolbox.org.
+    parsed = urlparse(server)
+    host = parsed.netloc
+    kc_host = "kc-" + host if host.startswith("eu.") else host.replace("kf.", "kc.", 1)
+    candidates += [f"{parsed.scheme}://{kc_host}/submission", f"{server}/submission"]
+    id_string = identifier.rstrip("/").split("/")[-1] if identifier else asset_uid
+    return list(dict.fromkeys(candidates)), id_string, version
 
 
 def to_xml(payload, id_string, version):
@@ -497,22 +509,47 @@ def submit_daily(records, today, dry_run):
 
     token = os.getenv("KOBO_TOKEN")
     deployments = {form: kobo_deployment(os.getenv(env)) for form, env in FORMS.items()}
+    headers = {"Authorization": f"Token {token}", "X-OpenRosa-Version": "1.0"}
+    working_url = {}
     sent = 0
     try:
         for form, _, payload in due:
-            kc_base, id_string, version = deployments[form]
-            response = requests.post(
-                f"{kc_base}/submission",
-                files={"xml_submission_file": ("submission.xml", to_xml(payload, id_string, version), "text/xml")},
-                headers={"Authorization": f"Token {token}", "X-OpenRosa-Version": "1.0"},
-                timeout=60,
-            )
-            if response.status_code not in (201, 202):
-                print(f"Stopped: Kobo returned {response.status_code} for a {form} record.")
-                print(response.text[:500])
+            candidates, id_string, version = deployments[form]
+            body = to_xml(payload, id_string, version)
+            urls = [working_url[form]] if form in working_url else candidates
+            ok, response = False, None
+            for url in urls:
+                response = None
+                for attempt in range(5):   # retry when Kobo is busy (429 or 5xx)
+                    try:
+                        response = requests.post(
+                            url, files={"xml_submission_file": ("submission.xml", body, "text/xml")},
+                            headers=headers, timeout=60)
+                    except requests.exceptions.ConnectionError:
+                        response = None
+                        if form not in working_url:
+                            break
+                    if response is not None and response.status_code < 500 and response.status_code != 429:
+                        break
+                    time.sleep(2 ** attempt * 3)
+                if response is None:
+                    print(f"  {url} -> could not connect")
+                    continue
+                if response.status_code in (201, 202):
+                    working_url[form], ok = url, True
+                    break
+                if form not in working_url:
+                    print(f"  {url} -> {response.status_code}")
+            if not ok:
+                print(f"Stopped: Kobo did not accept a {form} record.")
+                if response is not None:
+                    print(response.text[:500])
                 break
             done.add(payload["meta/instanceID"])
             sent += 1
+            time.sleep(0.3)   # be gentle with Kobo's servers
+            if sent % 100 == 0:
+                print(f"  {sent} sent...")
     finally:
         state["submitted"] = sorted(done)
         save_state(state)
